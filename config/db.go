@@ -1,0 +1,73 @@
+package config
+
+import (
+	"fmt"
+	"log"
+	"os"
+
+	"github.com/joho/godotenv"
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlserver"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+)
+
+var Db *gorm.DB
+var err error
+
+func Connect() *gorm.DB {
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+
+	Dbdriver := os.Getenv("DB_DRIVER2")
+	DbHost := os.Getenv("DB_HOST2")
+	DbUser := os.Getenv("DB_USER2")
+	DbPassword := os.Getenv("DB_PASSWORD2")
+	DbName := os.Getenv("DB_NAME2")
+	DbPort := os.Getenv("DB_PORT2")
+
+	switch Dbdriver {
+	case "mysql":
+		MysqlDev(DbUser, DbPassword, DbHost, DbPort, DbName, Dbdriver)
+
+	case "postgres":
+		PostgresDev(DbUser, DbPassword, DbHost, DbPort, DbName, Dbdriver)
+
+	case "msqlsvr":
+		MsqlsvrDev(DbUser, DbPassword, DbHost, DbName, Dbdriver)
+	}
+
+	return Db
+}
+
+func MysqlDev(DbUser string, DbPassword string, DbHost string, DbPort string, DbName string, Dbdriver string) {
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", DbUser, DbPassword, DbHost, DbPort, DbName)
+	Db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
+	if err != nil {
+		fmt.Println("Cannot connect to database ", Dbdriver)
+		log.Fatal("Database Connection Error")
+	}
+
+}
+
+func PostgresDev(DbUser string, DbPassword string, DbHost string, DbPort string, DbName string, Dbdriver string) {
+	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", DbHost, DbPort, DbUser, DbName, DbPassword)
+	Db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
+	if err != nil {
+		fmt.Println("Cannot connect to database ", Dbdriver)
+		log.Fatal("Database Connection Error")
+	}
+}
+
+func MsqlsvrDev(DbUser string, DbPassword string, DbHost string, DbName string, Dbdriver string) {
+	dsn := fmt.Sprintf("sqlserver://%s:%s@%s?database=%s&encrypt=disable&connection+timeout=30", DbUser, DbPassword, DbHost, DbName)
+	Db, err = gorm.Open(sqlserver.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
+	if err != nil {
+		fmt.Println("Cannot connect to database ", Dbdriver)
+		log.Fatal("Database Connection Error")
+	}
+}
