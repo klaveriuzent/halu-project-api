@@ -4,15 +4,13 @@ import (
 	"io"
 	"log"
 	"net/http"
-
-	"github.com/gorilla/mux"
 )
 
 func main() {
-	r := mux.NewRouter()
-	r.HandleFunc("/", ExampleHandler).Methods("GET")
+	//sample http server for testing purposes
+	http.HandleFunc("/", ExampleHandler)
 	log.Println("** Service Started on Port 8080 **")
-	err := http.ListenAndServe(":8080", r)
+	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
