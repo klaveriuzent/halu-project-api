@@ -1,22 +1,24 @@
 package main
 
 import (
-	"io"
 	"log"
-	"net/http"
+	"os"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
-	//sample http server for testing purposes
-	http.HandleFunc("/", ExampleHandler)
-	log.Println("** Service Started on Port 8080 **")
-	err := http.ListenAndServe("0.0.0.0:8080", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
+	app := fiber.New()
 
-func ExampleHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
-	io.WriteString(w, `{"status":"ok"}`)
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.SendString("Hello world!")
+	})
+
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		port = "3000"
+	}
+
+	log.Fatal(app.listen("0.0.0.0:" + port))
 }
