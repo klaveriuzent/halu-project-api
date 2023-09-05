@@ -17,22 +17,11 @@ var Db *gorm.DB
 var err error
 
 func Connect() *gorm.DB {
-	// USE FOR TESTING ONLY
-	testing := os.Getenv("ISTEST")
+	err := godotenv.Load(".env")
 
-	if testing == "True" {
-		err := godotenv.Load(".env")
-
-		if err != nil {
-			log.Fatalf("Error loading .env file")
-		}
-	} else if testing == "False" || testing == "" {
-		fmt.Println("Use AlternateDB environment variable")
-	} else {
-		fmt.Println("Use AlternateDB environment variable")
+	if err != nil {
+		fmt.Println("Error loading .env file, switching to system environment")
 	}
-
-	// USE FOR PRODUCTION ONLY
 
 	Dbdriver := os.Getenv("DB_DRIVER")
 	DbHost := os.Getenv("DB_HOST")
