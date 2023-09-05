@@ -5,5 +5,5 @@ content-type: application/json
     "email":"example@email.com",
     "username": "sampleusername",
     "password": "samplepassword",
-    "role": "samplerole",
+    "role": "admin"
 }

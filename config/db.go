@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlserver"
@@ -16,10 +17,11 @@ var Db *gorm.DB
 var err error
 
 func Connect() *gorm.DB {
-	//err := godotenv.Load(".env")
+	err := godotenv.Load(".env")
 
 	if err != nil {
 		log.Fatalf("Error loading .env file")
+		fmt.Println("Use AlternateDB environment variable")
 	}
 
 	Dbdriver := os.Getenv("DB_DRIVER")
