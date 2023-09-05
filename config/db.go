@@ -23,22 +23,20 @@ func Connect() *gorm.DB {
 		log.Fatalf("Error loading .env file")
 	}
 
-	Dbdriver := os.Getenv("DB_DRIVER2")
-	DbHost := os.Getenv("DB_HOST2")
-	DbUser := os.Getenv("DB_USER2")
-	DbPassword := os.Getenv("DB_PASSWORD2")
-	DbName := os.Getenv("DB_NAME2")
-	DbPort := os.Getenv("DB_PORT2")
+	Dbdriver := os.Getenv("DB_DRIVER")
+	DbHost := os.Getenv("DB_HOST")
+	DbUser := os.Getenv("DB_USER")
+	DbPassword := os.Getenv("DB_PASSWORD")
+	DbName := os.Getenv("DB_NAME")
+	DbPort := os.Getenv("DB_PORT")
 
 	switch Dbdriver {
+	case "sqlsvr":
+		SqlsvrDev(DbUser, DbPassword, DbHost, DbName, Dbdriver)
 	case "mysql":
 		MysqlDev(DbUser, DbPassword, DbHost, DbPort, DbName, Dbdriver)
-
 	case "postgres":
 		PostgresDev(DbUser, DbPassword, DbHost, DbPort, DbName, Dbdriver)
-
-	case "msqlsvr":
-		MsqlsvrDev(DbUser, DbPassword, DbHost, DbName, Dbdriver)
 	}
 
 	return Db
@@ -54,20 +52,20 @@ func MysqlDev(DbUser string, DbPassword string, DbHost string, DbPort string, Db
 
 }
 
-func PostgresDev(DbUser string, DbPassword string, DbHost string, DbPort string, DbName string, Dbdriver string) {
-	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", DbHost, DbPort, DbUser, DbName, DbPassword)
-	Db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
+func SqlsvrDev(DbUser string, DbPassword string, DbHost string, DbName string, Dbdriver string) {
+	dsn := fmt.Sprintf("sqlserver://%s:%s@%s?database=%s&encrypt=disable&connection+timeout=30", DbUser, DbPassword, DbHost, DbName)
+	Db, err = gorm.Open(sqlserver.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
 	if err != nil {
 		fmt.Println("Cannot connect to database ", Dbdriver)
 		log.Fatal("Database Connection Error")
 	}
 }
 
-func MsqlsvrDev(DbUser string, DbPassword string, DbHost string, DbName string, Dbdriver string) {
-	dsn := fmt.Sprintf("sqlserver://%s:%s@%s?database=%s&encrypt=disable&connection+timeout=30", DbUser, DbPassword, DbHost, DbName)
-	Db, err = gorm.Open(sqlserver.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
+func PostgresDev(DbUser string, DbPassword string, DbHost string, DbPort string, DbName string, DbDriver string) {
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Jakarta", DbHost, DbUser, DbPassword, DbName, DbPort)
+	Db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
 	if err != nil {
-		fmt.Println("Cannot connect to database ", Dbdriver)
+		fmt.Println("Cannot connect to database", DbDriver)
 		log.Fatal("Database Connection Error")
 	}
 }

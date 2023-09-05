@@ -1,24 +1,21 @@
 package main
 
 import (
-	"log"
-	"os"
+	"repositoryPattern/config"
+	"repositoryPattern/modules/auth"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
+	cors "github.com/rs/cors/wrapper/gin"
 )
 
 func main() {
-	app := fiber.New()
+	db := config.Connect()
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello world!")
-	})
+	router := gin.Default()
+	router.Use(cors.AllowAll())
 
-	port := os.Getenv("PORT")
+	v1 := router.Group("api/v1")
+	auth.NewAuthHandler(v1, auth.AuthRegistry(db))
 
-	if port == "" {
-		port = "3000"
-	}
-
-	log.Fatal(app.Listen("0.0.0.0:" + port))
+	router.Run(":1000")
 }
